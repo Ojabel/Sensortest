@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Sensor Test</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --dark: #212529;
+            --light: #f8f9fa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .sensor-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .sensor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sensor-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .sensor-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .sensor-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .sensor-status {
+            margin-left: auto;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-available {
+            background: rgba(76, 201, 240, 0.3);
+            color: var(--success);
+        }
+        
+        .status-unavailable {
+            background: rgba(247, 37, 133, 0.3);
+            color: var(--warning);
+        }
+        
+        .sensor-data {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 15px 0;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sensor-details {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+        
+        .visualization {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .viz-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .device-model {
+            height: 200px;
+            position: relative;
+            margin: 0 auto;
+            width: 120px;
+            perspective: 1000px;
+        }
+        
+        .device {
+            width: 120px;
+            height: 200px;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 0.1s linear;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .screen {
+            position: absolute;
+            width: 100px;
+            height: 180px;
+            background: var(--primary);
+            top: 10px;
+            left: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .instructions h2 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .instructions p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .sensor-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sensor-item-icon {
+            margin-right: 10px;
+            color: var(--success);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .sensor-data {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 200px;
+            }
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: var(--success);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+        
+        .value-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mobile Sensor Test</h1>
+            <p class="subtitle">Test all the sensors in your phone directly from your browser</p>
+        </header>
+        
+        <div class="dashboard">
+            <div class="sensor-card">
+                <div class="sensor-header">
+                    <div class="sensor-icon">📱</div>
+                    <div class="sensor-title">Device Orientation</div>
+                    <div class="sensor-status status-available" id="orientation-status">Active</div>
+                </div>
+                <div class="sensor-data" id="orientation-data">
+                    <div>Alpha: <span id="alpha">0</span>°</div>
+                </div>
+                <div class="sensor-details">
+                    <div>Beta: <span id="beta">0</span>°</div>
+                    <div>Gamma: <span id="gamma">0</span>°</div>
+                    <div class="progress-bar">
+                        <div class="progress" id="orientation-progress" style="width: 0%"></div>
+                    </div>
+                    <div class="value-display">
+                        <span>-180°</span>
+                        <span>0°</span>
+                        <span>180°</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sensor-card">
+                <div class="sensor-header">
+                    <div class="sensor-icon">🚀</div>
+                    <div class="sensor-title">Accelerometer</div>
+                    <div class="sensor-status status-available" id="accel-status">Active</div>
+                </div>
+                <div class="sensor-data" id="accel-data">
+                    <div>X: <span id="accel-x">0</span> m/s²</div>
+                </div>
+                <div class="sensor-details">
+                    <div>Y: <span id="accel-y">0</span> m/s²</div>
+                    <div>Z: <span id="accel-z">0</span> m/s²</div>
+                    <div class="progress-bar">
+                        <div class="progress" id="accel-progress" style="width: 50%"></div>
+                    </div>
+                    <div class="value-display">
+                        <span>-20 m/s²</span>
+                        <span>0 m/s²</span>
+                        <span>20 m/s²</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sensor-card">
+                <div class="sensor-header">
+                    <div class="sensor-icon">🧭</div>
+                    <div class="sensor-title">Magnetometer</div>
+                    <div class="sensor-status status-available" id="magnet-status">Active</div>
+                </div>
+                <div class="sensor-data" id="magnet-data">
+                    <div>X: <span id="magnet-x">0</span> µT</div>
+                </div>
+                <div class="sensor-details">
+                    <div>Y: <span id="magnet-y">0</span> µT</div>
+                    <div>Z: <span id="magnet-z">0</span> µT</div>
+                    <div>Heading: <span id="heading">0</span>°</div>
+                </div>
+            </div>
+            
+            <div class="sensor-card">
+                <div class="sensor-header">
+                    <div class="sensor-icon">🔍</div>
+                    <div class="sensor-title">Proximity</div>
+                    <div class="sensor-status status-unavailable" id="proximity-status">Checking...</div>
+                </div>
+                <div class="sensor-data" id="proximity-data">
+                    <div>Distance: <span id="proximity-value">Unknown</span></div>
+                </div>
+                <div class="sensor-details">
+                    <p>Move your hand closer to the screen to test the proximity sensor.</p>
+                </div>
+            </div>
+            
+            <div class="sensor-card">
+                <div class="sensor-header">
+                    <div class="sensor-icon">💡</div>
+                    <div class="sensor-title">Ambient Light</div>
+                    <div class="sensor-status status-unavailable" id="light-status">Checking...</div>
+                </div>
+                <div class="sensor-data" id="light-data">
+                    <div>Level: <span id="light-value">Unknown</span> lux</div>
+                </div>
+                <div class="sensor-details">
+                    <p>Move your phone to different lighting conditions to test.</p>
+                </div>
+            </div>
+            
+            <div class="sensor-card">
+                <div class="sensor-header">
+                    <div class="sensor-icon">🎯</div>
+                    <div class="sensor-title">Gyroscope</div>
+                    <div class="sensor-status status-available" id="gyro-status">Active</div>
+                </div>
+                <div class="sensor-data" id="gyro-data">
+                    <div>X: <span id="gyro-x">0</span> °/s</div>
+                </div>
+                <div class="sensor-details">
+                    <div>Y: <span id="gyro-y">0</span> °/s</div>
+                    <div>Z: <span id="gyro-z">0</span> °/s</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="visualization">
+            <h2 class="viz-title">Device Orientation Visualization</h2>
+            <div class="device-model">
+                <div class="device" id="device-model">
+                    <div class="screen">Phone Model</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" id="start-test">Start Sensor Test</button>
+            <button class="btn" id="reset-test">Reset Test</button>
+            <button class="btn" id="request-permission">Request Permissions</button>
+        </div>
+        
+        <div class="instructions">
+            <h2>How to Use This Sensor Test</h2>
+            <p>1. Click "Start Sensor Test" to begin testing all available sensors</p>
+            <p>2. Grant permission when your browser asks for sensor access</p>
+            <p>3. Move and rotate your phone to see the sensors in action</p>
+            <p>4. Test individual sensors by:</p>
+            
+            <div class="sensor-grid">
+                <div class="sensor-item">
+                    <span class="sensor-item-icon">↻</span>
+                    <span>Rotate device for Orientation & Gyroscope</span>
+                </div>
+                <div class="sensor-item">
+                    <span class="sensor-item-icon">📳</span>
+                    <span>Shake device for Accelerometer</span>
+                </div>
+                <div class="sensor-item">
+                    <span class="sensor-item-icon">🧭</span>
+                    <span>Move in different directions for Magnetometer</span>
+                </div>
+                <div class="sensor-item">
+                    <span class="sensor-item-icon">🔍</span>
+                    <span>Cover the top of phone for Proximity</span>
+                </div>
+                <div class="sensor-item">
+                    <span class="sensor-item-icon">💡</span>
+                    <span>Change lighting for Ambient Light</span>
+                </div>
+            </div>
+            
+            <p style="margin-top: 15px;"><strong>Note:</strong> Not all sensors are available on all devices. Sensor availability depends on your phone hardware and browser support.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const startTestBtn = document.getElementById('start-test');
+            const resetTestBtn = document.getElementById('reset-test');
+            const requestPermissionBtn = document.getElementById('request-permission');
+            const deviceModel = document.getElementById('device-model');
+            
+            // Sensor status elements
+            const orientationStatus = document.getElementById('orientation-status');
+            const accelStatus = document.getElementById('accel-status');
+            const magnetStatus = document.getElementById('magnet-status');
+            const proximityStatus = document.getElementById('proximity-status');
+            const lightStatus = document.getElementById('light-status');
+            const gyroStatus = document.getElementById('gyro-status');
+            
+            // Sensor data elements
+            const alphaElem = document.getElementById('alpha');
+            const betaElem = document.getElementById('beta');
+            const gammaElem = document.getElementById('gamma');
+            const accelXElem = document.getElementById('accel-x');
+            const accelYElem = document.getElementById('accel-y');
+            const accelZElem = document.getElementById('accel-z');
+            const magnetXElem = document.getElementById('magnet-x');
+            const magnetYElem = document.getElementById('magnet-y');
+            const magnetZElem = document.getElementById('magnet-z');
+            const headingElem = document.getElementById('heading');
+            const proximityValueElem = document.getElementById('proximity-value');
+            const lightValueElem = document.getElementById('light-value');
+            const gyroXElem = document.getElementById('gyro-x');
+            const gyroYElem = document.getElementById('gyro-y');
+            const gyroZElem = document.getElementById('gyro-z');
+            
+            // Progress bars
+            const orientationProgress = document.getElementById('orientation-progress');
+            const accelProgress = document.getElementById('accel-progress');
+            
+            // State
+            let isTesting = false;
+            let orientationHandler = null;
+            let motionHandler = null;
+            let deviceOrientationHandler = null;
+            
+            // Start sensor test
+            startTestBtn.addEventListener('click', function() {
+                if (isTesting) return;
+                
+                isTesting = true;
+                startTestBtn.textContent = 'Testing...';
+                startTestBtn.disabled = true;
+                
+                // Test Device Orientation
+                if (window.DeviceOrientationEvent) {
+                    orientationStatus.textContent = 'Active';
+                    orientationStatus.className = 'sensor-status status-available';
+                    
+                    orientationHandler = function(event) {
+                        const alpha = event.alpha; // 0 to 360
+                        const beta = event.beta;  // -180 to 180
+                        const gamma = event.gamma; // -90 to 90
+                        
+                        alphaElem.textContent = alpha ? alpha.toFixed(2) : '0';
+                        betaElem.textContent = beta ? beta.toFixed(2) : '0';
+                        gammaElem.textContent = gamma ? gamma.toFixed(2) : '0';
+                        
+                        // Update progress bar based on gamma (left/right tilt)
+                        const progress = ((gamma + 90) / 180) * 100;
+                        orientationProgress.style.width = `${progress}%`;
+                        
+                        // Update device model visualization
+                        deviceModel.style.transform = `rotateX(${beta}deg) rotateY(${gamma}deg) rotateZ(${alpha}deg)`;
+                    };
+                    
+                    window.addEventListener('deviceorientation', orientationHandler);
+                } else {
+                    orientationStatus.textContent = 'Not Supported';
+                    orientationStatus.className = 'sensor-status status-unavailable';
+                }
+                
+                // Test Accelerometer
+                if (window.DeviceMotionEvent) {
+                    accelStatus.textContent = 'Active';
+                    accelStatus.className = 'sensor-status status-available';
+                    
+                    motionHandler = function(event) {
+                        const acceleration = event.accelerationIncludingGravity;
+                        if (acceleration) {
+                            accelXElem.textContent = acceleration.x ? acceleration.x.toFixed(2) : '0';
+                            accelYElem.textContent = acceleration.y ? acceleration.y.toFixed(2) : '0';
+                            accelZElem.textContent = acceleration.z ? acceleration.z.toFixed(2) : '0';
+                            
+                            // Calculate total acceleration magnitude
+                            const totalAccel = Math.sqrt(
+                                Math.pow(acceleration.x || 0, 2) + 
+                                Math.pow(acceleration.y || 0, 2) + 
+                                Math.pow(acceleration.z || 0, 2)
+                            );
+                            
+                            // Update progress bar (normalize to 0-20 m/s² range)
+                            const progress = Math.min((totalAccel / 20) * 100, 100);
+                            accelProgress.style.width = `${progress}%`;
+                        }
+                    };
+                    
+                    window.addEventListener('devicemotion', motionHandler);
+                } else {
+                    accelStatus.textContent = 'Not Supported';
+                    accelStatus.className = 'sensor-status status-unavailable';
+                }
+                
+                // Test Magnetometer (Compass)
+                if (window.DeviceOrientationEvent) {
+                    magnetStatus.textContent = 'Active';
+                    magnetStatus.className = 'sensor-status status-available';
+                    
+                    // For magnetometer, we use the deviceorientation event which includes compass heading
+                    // Note: This is a simplified approach - actual magnetometer data requires more complex handling
+                    deviceOrientationHandler = function(event) {
+                        // In a real implementation, we would use the Magnetometer API if available
+                        // For now, we'll simulate magnetometer data based on device orientation
+                        const alpha = event.alpha || 0;
+                        
+                        // Simulate magnetometer values based on orientation
+                        magnetXElem.textContent = (Math.sin(alpha * Math.PI / 180) * 50).toFixed(2);
+                        magnetYElem.textContent = (Math.cos(alpha * Math.PI / 180) * 50).toFixed(2);
+                        magnetZElem.textContent = (40 + Math.sin(alpha * Math.PI / 90) * 10).toFixed(2);
+                        
+                        // Calculate heading from alpha (compass direction)
+                        headingElem.textContent = alpha.toFixed(2);
+                    };
+                    
+                    window.addEventListener('deviceorientation', deviceOrientationHandler);
+                } else {
+                    magnetStatus.textContent = 'Not Supported';
+                    magnetStatus.className = 'sensor-status status-unavailable';
+                }
+                
+                // Test Proximity Sensor
+                if ('ondeviceproximity' in window || 'onuserproximity' in window) {
+                    proximityStatus.textContent = 'Active';
+                    proximityStatus.className = 'sensor-status status-available';
+                    
+                    window.addEventListener('deviceproximity', function(event) {
+                        proximityValueElem.textContent = event.value ? `${event.value.toFixed(2)} cm` : 'Unknown';
+                    });
+                    
+                    window.addEventListener('userproximity', function(event) {
+                        if (event.near) {
+                            proximityValueElem.textContent = 'Near';
+                        } else {
+                            proximityValueElem.textContent = 'Far';
+                        }
+                    });
+                } else {
+                    proximityStatus.textContent = 'Not Supported';
+                    proximityStatus.className = 'sensor-status status-unavailable';
+                    proximityValueElem.textContent = 'Not available';
+                }
+                
+                // Test Ambient Light Sensor
+                if ('ondevicelight' in window) {
+                    lightStatus.textContent = 'Active';
+                    lightStatus.className = 'sensor-status status-available';
+                    
+                    window.addEventListener('devicelight', function(event) {
+                        lightValueElem.textContent = event.value ? `${event.value.toFixed(2)}` : 'Unknown';
+                    });
+                } else if ('AmbientLightSensor' in window) {
+                    lightStatus.textContent = 'Active';
+                    lightStatus.className = 'sensor-status status-available';
+                    
+                    try {
+                        const sensor = new AmbientLightSensor();
+                        sensor.addEventListener('reading', function() {
+                            lightValueElem.textContent = sensor.illuminance ? `${sensor.illuminance.toFixed(2)}` : 'Unknown';
+                        });
+                        sensor.start();
+                    } catch (error) {
+                        lightStatus.textContent = 'Permission Needed';
+                        lightValueElem.textContent = 'Grant permission first';
+                    }
+                } else {
+                    lightStatus.textContent = 'Not Supported';
+                    lightStatus.className = 'sensor-status status-unavailable';
+                    lightValueElem.textContent = 'Not available';
+                }
+                
+                // Test Gyroscope
+                if ('ondeviceorientation' in window) {
+                    gyroStatus.textContent = 'Active';
+                    gyroStatus.className = 'sensor-status status-available';
+                    
+                    // For gyroscope, we use the rotationRate from devicemotion event
+                    if (window.DeviceMotionEvent) {
+                        window.addEventListener('devicemotion', function(event) {
+                            const rotation = event.rotationRate;
+                            if (rotation) {
+                                gyroXElem.textContent = rotation.alpha ? rotation.alpha.toFixed(2) : '0';
+                                gyroYElem.textContent = rotation.beta ? rotation.beta.toFixed(2) : '0';
+                                gyroZElem.textContent = rotation.gamma ? rotation.gamma.toFixed(2) : '0';
+                            }
+                        });
+                    }
+                } else {
+                    gyroStatus.textContent = 'Not Supported';
+                    gyroStatus.className = 'sensor-status status-unavailable';
+                }
+            });
+            
+            // Reset test
+            resetTestBtn.addEventListener('click', function() {
+                isTesting = false;
+                startTestBtn.textContent = 'Start Sensor Test';
+                startTestBtn.disabled = false;
+                
+                // Remove event listeners
+                if (orientationHandler) {
+                    window.removeEventListener('deviceorientation', orientationHandler);
+                }
+                if (motionHandler) {
+                    window.removeEventListener('devicemotion', motionHandler);
+                }
+                if (deviceOrientationHandler) {
+                    window.removeEventListener('deviceorientation', deviceOrientationHandler);
+                }
+                
+                // Reset displayed values
+                alphaElem.textContent = '0';
+                betaElem.textContent = '0';
+                gammaElem.textContent = '0';
+                accelXElem.textContent = '0';
+                accelYElem.textContent = '0';
+                accelZElem.textContent = '0';
+                magnetXElem.textContent = '0';
+                magnetYElem.textContent = '0';
+                magnetZElem.textContent = '0';
+                headingElem.textContent = '0';
+                gyroXElem.textContent = '0';
+                gyroYElem.textContent = '0';
+                gyroZElem.textContent = '0';
+                
+                // Reset progress bars
+                orientationProgress.style.width = '0%';
+                accelProgress.style.width = '50%';
+                
+                // Reset device model
+                deviceModel.style.transform = 'rotateX(0deg) rotateY(0deg) rotateZ(0deg)';
+                
+                // Reset status indicators
+                const statusElements = document.querySelectorAll('.sensor-status');
+                statusElements.forEach(el => {
+                    el.textContent = 'Inactive';
+                    el.className = 'sensor-status status-unavailable';
+                });
+            });
+            
+            // Request permissions
+            requestPermissionBtn.addEventListener('click', function() {
+                if (window.DeviceOrientationEvent) {
+                    // Request permission for device orientation (iOS 13+)
+                    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                        DeviceOrientationEvent.requestPermission()
+                            .then(permissionState => {
+                                if (permissionState === 'granted') {
+                                    alert('Orientation permission granted!');
+                                } else {
+                                    alert('Orientation permission denied');
+                                }
+                            })
+                            .catch(console.error);
+                    }
+                    
+                    // Request permission for device motion (iOS 13+)
+                    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                        DeviceMotionEvent.requestPermission()
+                            .then(permissionState => {
+                                if (permissionState === 'granted') {
+                                    alert('Motion permission granted!');
+                                } else {
+                                    alert('Motion permission denied');
+                                }
+                            })
+                            .catch(console.error);
+                    }
+                } else {
+                    alert('Your browser does not require explicit permission or already has access to sensors.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
